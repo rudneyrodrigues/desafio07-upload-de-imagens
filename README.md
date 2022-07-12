@@ -52,7 +52,7 @@ Este projeto foi feito utilizando as seguintes tecnologias:
 
 ### Clone o Repositório:
 ```bash
-https://github.com/tavareshenrique/ignite-reactjs-desafio-7
+https://github.com/rudneyrodrigues/desafio07-upload-de-imagens
 ```
 
 ### Baixe as dependendências:
