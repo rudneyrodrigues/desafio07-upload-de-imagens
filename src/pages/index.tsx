@@ -1,14 +1,14 @@
-import { useMemo } from 'react';
 import Head from 'next/head';
-import { GetServerSideProps, NextPage } from 'next';
+import { useMemo } from 'react';
+import { NextPage } from 'next';
 import { Button, Box } from '@chakra-ui/react';
 import { useInfiniteQuery } from 'react-query';
 
-import { Header } from '../components/Header';
-import { CardList } from '../components/CardList';
 import { api } from '../services/api';
-import { Loading } from '../components/Loading';
 import { Error } from '../components/Error';
+import { Header } from '../components/Header';
+import { Loading } from '../components/Loading';
+import { CardList } from '../components/CardList';
 
 interface Image {
   id: string;
@@ -91,17 +91,3 @@ const Home: NextPage = () => {
     </>
   );
 };
-
-export default Home;
-
-// export const getServerSideProps: GetServerSideProps = async () => {
-//   const response = await api.get(`/api/images`);
-
-//   console.log(response.data);
-
-//   return {
-//     props: {
-//       initialData: response.data,
-//     },
-//   };
-// }
