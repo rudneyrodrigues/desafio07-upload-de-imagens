@@ -1,6 +1,6 @@
 import { Box, Button, Stack, useToast } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useMutation, useQueryClient } from 'react-query';
 
 import { api } from '../../services/api';
@@ -61,9 +61,10 @@ export function FormAddImage({ closeModal }: FormAddImageProps): JSX.Element {
   const queryClient = useQueryClient();
   const mutation = useMutation(
     // TODO MUTATION API POST REQUEST,
-    (image: FormImageProps) => api.post('/images', image),
+    (data: any) => {
+      return api.post('/api/images', data);
+    },
     {
-      // TODO ONSUCCESS MUTATION
       onSuccess: () => {
         queryClient.invalidateQueries('images');
       },
@@ -80,6 +81,7 @@ export function FormAddImage({ closeModal }: FormAddImageProps): JSX.Element {
       if (!imageUrl) {
         toast({
           title: 'Imagem não adicionada',
+          position: 'top',
           description:
             'É preciso adicionar e aguardar o upload de uma imagem antes de realizar o cadastro.',
           status: 'error',
@@ -87,13 +89,15 @@ export function FormAddImage({ closeModal }: FormAddImageProps): JSX.Element {
           isClosable: true,
         });
 
-        return null;
+        return;
       }
       // TODO EXECUTE ASYNC MUTATION
-      await mutation.mutate(data);
+      // mutation.mutate(data);
+      await mutation.mutateAsync({ ...data, url: imageUrl });
       // TODO SHOW SUCCESS TOAST
       toast({
         title: 'Imagem cadastrada',
+        position: 'top',
         description: 'Sua imagem foi cadastrada com sucesso!',
         status: 'success',
         duration: 9000,
@@ -103,6 +107,7 @@ export function FormAddImage({ closeModal }: FormAddImageProps): JSX.Element {
       // TODO SHOW ERROR TOAST IF SUBMIT FAILED
       toast({
         title: 'Falha no cadastro',
+        position: 'top',
         description: 'Ocorreu um erro ao tentar cadastrar a sua imagem.',
         status: 'error',
         duration: 9000,
@@ -111,8 +116,6 @@ export function FormAddImage({ closeModal }: FormAddImageProps): JSX.Element {
     } finally {
       // TODO CLEAN FORM, STATES AND CLOSE MODAL
       reset();
-      setImageUrl('');
-      setLocalImageUrl('');
       closeModal();
     }
   };

@@ -1,5 +1,7 @@
-import { Button, Box } from '@chakra-ui/react';
 import { useMemo } from 'react';
+import Head from 'next/head';
+import { GetServerSideProps, NextPage } from 'next';
+import { Button, Box } from '@chakra-ui/react';
 import { useInfiniteQuery } from 'react-query';
 
 import { Header } from '../components/Header';
@@ -21,12 +23,16 @@ interface Response {
   after: string;
 }
 
-export default function Home(): JSX.Element {
-  async function fetchPages({ pageParam = null }): Promise<Response> {
-    const response = await api.get(`/api/images`);
+const Home: NextPage = () => {
+  // async function fetchPages({ pageParam = null }): Promise<Response> {
+  //   const response = await api.get<Response>('/api/image', {
+  //     params: {
+  //       after: pageParam,
+  //     },
+  //   });
 
-    return response.data;
-  }
+  //   return response.data;
+  // }
 
   const {
     data,
@@ -35,12 +41,24 @@ export default function Home(): JSX.Element {
     isFetchingNextPage,
     fetchNextPage,
     hasNextPage,
-  } = useInfiniteQuery('images', fetchPages, {
-    getNextPageParam: lastPage => lastPage.after,
-  });
+  } = useInfiniteQuery(
+    'images',
+    ({ pageParam = null }) =>
+      api
+        .get<Response>('/api/images', {
+          params: { after: pageParam },
+        })
+        .then(res => res.data),
+    {
+      getNextPageParam: lastPage => lastPage.after,
+    }
+  );
 
   const formattedData = useMemo(() => {
-    return data ? data.pages.map(page => page.data).flat() : [];
+    if (!data) return null;
+    const { pages } = data;
+
+    return pages.reduce((acc, page) => [...acc, ...page.data], []);
   }, [data]);
 
   // TODO RENDER LOADING SCREEN
@@ -55,17 +73,35 @@ export default function Home(): JSX.Element {
 
   return (
     <>
+      <Head>
+        <title>Upload de Imagens | UpFi</title>
+      </Head>
+
       <Header />
 
       <Box maxW={1120} px={20} mx="auto" my={20}>
         <CardList cards={formattedData} />
         {/* TODO RENDER LOAD MORE BUTTON IF DATA HAS NEXT PAGE */}
         {hasNextPage && (
-          <Button bg="yellow.400" onClick={() => fetchNextPage()}>
+          <Button mt="2.5rem" bg="yellow.400" onClick={() => fetchNextPage()}>
             {isFetchingNextPage ? 'Carregando...' : 'Carregar mais'}
           </Button>
         )}
       </Box>
     </>
   );
-}
+};
+
+export default Home;
+
+// export const getServerSideProps: GetServerSideProps = async () => {
+//   const response = await api.get(`/api/images`);
+
+//   console.log(response.data);
+
+//   return {
+//     props: {
+//       initialData: response.data,
+//     },
+//   };
+// }
